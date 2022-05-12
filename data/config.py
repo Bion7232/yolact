@@ -780,6 +780,28 @@ yolact_resnet50_pascal_config = yolact_resnet50_config.copy({
     })
 })
 
+yolact_resnet50_cig_custom_config = yolact_resnet50_config.copy({
+    'name': 'yolact_plus_resnet50_cig_custom', # Will default to yolact_resnet50_pascal
+    
+    # Dataset stuff
+    'dataset': cig_custom_dataset,
+    'num_classes': len(cig_custom_dataset.class_names) + 1,
+    #max size can be fixed by 640
+    'max_size' : 512,
+    'max_iter': 120000,
+    'lr_steps': (60000, 100000),
+    
+    'backbone': yolact_resnet50_config.backbone.copy({
+        'pred_scales': [[32], [64], [128], [256], [512]],
+        'use_square_anchors': False,
+    })
+})
+
+
+
+
+
+
 # ----------------------- YOLACT++ CONFIGS ----------------------- #
 
 yolact_plus_base_config = yolact_base_config.copy({
