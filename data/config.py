@@ -175,8 +175,8 @@ pascal_sbd_dataset = dataset_base.copy({
 cig_custom_dataset = dataset_base.copy({
     'name': 'lane',
 
-    'train_images': './data/train/imges/',
-    'valid_images': './data/train/imges/',
+    'train_images': './data/train/images/',
+    'valid_images': './data/train/images/',
 
     'train_info': './data/train/trainval.json',
     'valid_info': './data/train/trainval.json',
