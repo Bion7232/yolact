@@ -172,7 +172,7 @@ pascal_sbd_dataset = dataset_base.copy({
     'class_names': PASCAL_CLASSES,
 })
 
- cig_custom_dataset = dataset_base.copy({
+cig_custom_dataset = dataset_base.copy({
     'name': 'lane',
 
     'train_images': './data/train/imges/',
@@ -182,8 +182,8 @@ pascal_sbd_dataset = dataset_base.copy({
     'valid_info': './data/train/trainval.json',
 
     'class_names': ('dot','line'),
-    'label_map': { 0:  1, 1:  2... and so on}
-    #'label_map': { 0:  1, 1:  2}       
+    #'label_map': { 0:  1, 1:  2... and so on}
+    'label_map': { 0:  1, 1:  2}       
            
 })
 
