@@ -144,11 +144,11 @@ def prep_display(dets_out, img, path_, out_dir, h, w, undo_transform=True, class
     Note: If undo_transform=False then im_h and im_w are allowed to be None.
     """
     path_split = Path(path_).parts
-    print(path_split)
+    #print(path_split)
     path2 = path_split[1]   #[2] ->1로 수정해서 에러 해결
     path2 = os.path.splitext(path2)[0]
-    print("path", path2)
-    print("out_dir", out_dir)
+    #print("path", path2)
+    #print("out_dir", out_dir)
     if undo_transform:
         img_numpy = undo_image_transformation(img, w, h)
         img_gpu = torch.Tensor(img_numpy).cuda()
