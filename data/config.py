@@ -172,7 +172,7 @@ pascal_sbd_dataset = dataset_base.copy({
     'class_names': PASCAL_CLASSES,
 })
 
-cig_custom_dataset = dataset_base.copy({
+custom_dataset = dataset_base.copy({
     'name': 'lane',
 
     'train_images': './data/train/images/',
@@ -780,12 +780,12 @@ yolact_resnet50_pascal_config = yolact_resnet50_config.copy({
     })
 })
 
-yolact_resnet50_cig_custom_config = yolact_resnet50_config.copy({
-    'name': 'yolact_plus_resnet50_cig_custom', # Will default to yolact_resnet50_pascal
+yolact_resnet50_custom_config = yolact_resnet50_config.copy({
+    'name': 'yolact_resnet50_custom', # Will default to yolact_resnet50_pascal
     
     # Dataset stuff
-    'dataset': cig_custom_dataset,
-    'num_classes': len(cig_custom_dataset.class_names) + 1,
+    'dataset': custom_dataset,
+    'num_classes': len(custom_dataset.class_names) + 1,
     #max size can be fixed by 640
     'max_size' : 512,
     'max_iter': 120000,
