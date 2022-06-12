@@ -208,7 +208,9 @@ def prep_display(dets_out, img, path_, out_dir, h, w, undo_transform=True, class
         #print('maskshape', (masks.shape))  #11,480,640,1 => 11개 mask 존재 class = [0 0 0 0 1 0 0  1]' 이런식으로 구할 수 있음
         #print('2',masks.shape[1])
         dot_outs = np.zeros((masks.shape[1],masks.shape[2]))
-
+        lateral_dist=[]
+        curve_coeff=[]
+        print(num_dets_to_consider) #print number of lanes
         for i in range(num_dets_to_consider):
             msk = masks[i, :, :, None]
             #print("shape", msk.shape)
@@ -222,7 +224,7 @@ def prep_display(dets_out, img, path_, out_dir, h, w, undo_transform=True, class
             key=cv2.contourArea
             #class[i]=1='line' 0='dot'
             if classes[i]==1: 
-
+              sol_x=np.zeros(2)
               if cnts == []:
                 out = np.zeros(img_numpy.shape, np.uint8)
                 out = cv2.bitwise_and(img_numpy, out)
@@ -238,11 +240,26 @@ def prep_display(dets_out, img, path_, out_dir, h, w, undo_transform=True, class
                 sol = np.argwhere(flip_out != 0)
                 popt, pcov = curve_fit(func, sol[:,1], sol[:,0])
 
-                f = open("./linecoeff.txt",'w')
-                ts = np.array_str(popt)
-                f.write(ts)
-                f.write("\n")
-                f.close()      
+                sol_x[0] = (-popt[1]+np.sqrt(np.multiply(popt[1],popt[1])-4*popt[0]*popt[2]) )/(2*popt[0])
+                sol_x[1] = (-popt[1]-np.sqrt(np.multiply(popt[1],popt[1])-4*popt[0]*popt[2]) )/(2*popt[0])
+
+                fp=popt[1]
+                fpp = 2*popt[0]
+                sol = np.argmin(abs(sol_x-250))
+                lateral_dist.append(abs(sol_x[sol]-250))
+                #print("lateral_dist : ")
+                #print(lateral_dist)
+                #x = sol_x[sol]
+                curve_coeff.append(abs(2*popt[0])/np.power(1+np.multiply(popt[1],popt[1]),3/2))
+                #print("curve_coeff : ")
+                #print(curve_coeff)
+                
+  
+                #f = open("./linecoeff.txt",'w')
+                #ts = np.array_str(popt)
+                #f.write(ts)
+                #f.write("\n")
+                #f.close()      
                 
                 
                 #print(out_dir + '/' + path2 + '_mask' + str(i) + '.png') # '/home/davidsos/Documents/yolact_mussel28/' +
@@ -259,10 +276,33 @@ def prep_display(dets_out, img, path_, out_dir, h, w, undo_transform=True, class
                 cv2.drawContours(out, [cnt], -1, 255, cv2.FILLED)
                 dot_out = cv2.bitwise_and(img_numpy, out)
                 dot_outs = dot_outs+dot_out
-        print(out_dir + '/' + path2 + 'dot_mask' + str(i) + '.png') # '/home/davidsos/Documents/yolact_mussel28/' +
-        cv2.imwrite(out_dir + '/' + path2 + '_dot_' + str(i) + '.png', dot_outs) # works for single image :) # '/home/davidsos/Documents/yolact_mussel28/'
-            
 
+                
+        flip_out = cv2.flip(dot_outs,0)
+        sol = np.argwhere(flip_out != 0)
+        popt, pcov = curve_fit(func, sol[:,1], sol[:,0])   
+        #Dot line Curve fitting & Find lateral offset & Curvature
+        sol_x[0] = (-popt[1]+np.sqrt(np.multiply(popt[1],popt[1])-4*popt[0]*popt[2]) )/(2*popt[0])
+        sol_x[1] = (-popt[1]-np.sqrt(np.multiply(popt[1],popt[1])-4*popt[0]*popt[2]) )/(2*popt[0])
+        
+        fp=popt[1]
+        fpp = 2*popt[0]
+        sol = np.argmin(abs(sol_x-250))
+        lateral_dist.append(abs(sol_x[sol]-250))
+        #print("lateral_dist : ")
+        #print(lateral_dist)
+        x = sol_x[sol]
+        curve_coeff.append(abs(2*popt[0])/np.power(1+np.multiply(popt[1],popt[1]),3/2))
+        #print("curve_coeff : ")
+        #print(curve_coeff)
+        #print(out_dir + '/' + path2 + 'dot_' + str(i) + '.png') # '/home/davidsos/Documents/yolact_mussel28/' +
+        cv2.imwrite(out_dir + '/' + path2 + '_dot_' + str(i) + '.png', dot_outs) # works for single image :) # '/home/davidsos/Documents/yolact_mussel28/'
+        
+        main_line = np.argmin(lateral_dist)
+        print("lateral_dist : ")
+        print(lateral_dist[main_line])
+        print("curvature: ")
+        print(curve_coeff[main_line])
 
 
 
