@@ -29,7 +29,10 @@ from PIL import Image
 
 import matplotlib.pyplot as plt
 import cv2
+from scipy.optimize import curve_fit
 
+def func(x,a,b,c):
+  return a*np.multiply(x,x)+b*x+c
 
 def str2bool(v):
     if v.lower() in ('yes', 'true', 't', 'y', '1'):
@@ -230,9 +233,21 @@ def prep_display(dets_out, img, path_, out_dir, h, w, undo_transform=True, class
                 out = np.zeros(img_numpy.shape, np.uint8)
                 cv2.drawContours(out, [cnt], -1, 255, cv2.FILLED)
                 out = cv2.bitwise_and(img_numpy, out)
-                print(out_dir + '/' + path2 + '_mask' + str(i) + '.png') # '/home/davidsos/Documents/yolact_mussel28/' +
+
+                flip_out = cv2.flip(out,0)
+                sol = np.argwhere(flip_out != 0)
+                popt, pcov = curve_fit(func, sol[:,1], sol[:,0])
+
+                f = open("./linecoeff.txt",'w')
+                ts = np.array_str(popt)
+                f.write(ts)
+                f.write("\n")
+                f.close()      
+                
+                
+                #print(out_dir + '/' + path2 + '_mask' + str(i) + '.png') # '/home/davidsos/Documents/yolact_mussel28/' +
                 # cv2.imwrite(out_dir + '/' + path_ + '_mask' + str(i) + '.png', out) # works for single image :) # '/home/davidsos/Documents/yolact_mussel28/'
-                cv2.imwrite(out_dir + '/' + path2 + '_line_' + str(i) + '.png', out) # works for single image :) # '/home/davidsos/Documents/yolact_mussel28/'
+                #cv2.imwrite(out_dir + '/' + path2 + '_line_' + str(i) + '.png', out) # works for single image :) # '/home/davidsos/Documents/yolact_mussel28/'
             else:
               if cnts ==[]:
                 dot_out = np.zeros(img_numpy.shape, np.uint8)
