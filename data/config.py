@@ -267,7 +267,7 @@ resnet101_dcn_inter3_backbone = resnet101_backbone.copy({
 
 resnet50_backbone = resnet101_backbone.copy({
     'name': 'ResNet50',
-    'path': 'resnet50-19c8e357.pth',
+    'path': 'yolact_resnet50_custom_907_27222_interrupt.pth',
     'type': ResNetBackbone,
     'args': ([3, 4, 6, 3],),
     'transform': resnet_transform,
