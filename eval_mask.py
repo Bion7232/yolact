@@ -235,36 +235,34 @@ def prep_display(dets_out, img, path_, out_dir, h, w, undo_transform=True, class
                 out = np.zeros(img_numpy.shape, np.uint8)
                 cv2.drawContours(out, [cnt], -1, 255, cv2.FILLED)
                 out = cv2.bitwise_and(img_numpy, out)
-
+                print(out_dir + '/' + path2 + '_line_' + str(i) + '.png') # '/home/davidsos/Documents/yolact_mussel28/' +
+                # cv2.imwrite(out_dir + '/' + path_ + '_mask' + str(i) + '.png', out) # works for single image :) # '/home/davidsos/Documents/yolact_mussel28/'
+                cv2.imwrite(out_dir + '/' + path2 + '_line_' + str(i) + '.png', out) # works for single image :) # '/home/davidsos/Documents/yolact_mussel28/'
+                
                 flip_out = cv2.flip(out,0)
                 sol = np.argwhere(flip_out != 0)
-                popt, pcov = curve_fit(func, sol[:,1], sol[:,0])
+                if sol.size!=0:
+                  popt, pcov = curve_fit(func, sol[:,1], sol[:,0])
+                  sol_x[0] = (-popt[1]+np.sqrt(np.multiply(popt[1],popt[1])-4*popt[0]*popt[2]) )/(2*popt[0])
+                  sol_x[1] = (-popt[1]-np.sqrt(np.multiply(popt[1],popt[1])-4*popt[0]*popt[2]) )/(2*popt[0])
 
-                sol_x[0] = (-popt[1]+np.sqrt(np.multiply(popt[1],popt[1])-4*popt[0]*popt[2]) )/(2*popt[0])
-                sol_x[1] = (-popt[1]-np.sqrt(np.multiply(popt[1],popt[1])-4*popt[0]*popt[2]) )/(2*popt[0])
+                  sol = np.argmin(abs(sol_x-250))
+                  lateral_dist.append(abs(sol_x[sol]-250))
+                  #print("lateral_dist : ")
+                  #print(lateral_dist)
+                  #x = sol_x[sol]
+                  curve_coeff.append(abs(2*popt[0])/np.power(1+np.multiply(popt[1],popt[1]),3/2))
+                  #print("curve_coeff : ")
+                  #print(curve_coeff)
 
-                fp=popt[1]
-                fpp = 2*popt[0]
-                sol = np.argmin(abs(sol_x-250))
-                lateral_dist.append(abs(sol_x[sol]-250))
-                #print("lateral_dist : ")
-                #print(lateral_dist)
-                #x = sol_x[sol]
-                curve_coeff.append(abs(2*popt[0])/np.power(1+np.multiply(popt[1],popt[1]),3/2))
-                #print("curve_coeff : ")
-                #print(curve_coeff)
-                
-  
-                #f = open("./linecoeff.txt",'w')
-                #ts = np.array_str(popt)
-                #f.write(ts)
-                #f.write("\n")
-                #f.close()      
-                
-                
-                #print(out_dir + '/' + path2 + '_mask' + str(i) + '.png') # '/home/davidsos/Documents/yolact_mussel28/' +
+                  #f = open("./linecoeff.txt",'w')
+                  #ts = np.array_str(popt)
+                  #f.write(ts)
+                  #f.write("\n")
+                  #f.close()      
+                print(out_dir + '/' + path2 + '_line_' + str(i) + '.png') # '/home/davidsos/Documents/yolact_mussel28/' +
                 # cv2.imwrite(out_dir + '/' + path_ + '_mask' + str(i) + '.png', out) # works for single image :) # '/home/davidsos/Documents/yolact_mussel28/'
-                #cv2.imwrite(out_dir + '/' + path2 + '_line_' + str(i) + '.png', out) # works for single image :) # '/home/davidsos/Documents/yolact_mussel28/'
+                cv2.imwrite(out_dir + '/' + path2 + '_line_' + str(i) + '.png', out) # works for single image :) # '/home/davidsos/Documents/yolact_mussel28/'
             else:
               if cnts ==[]:
                 dot_out = np.zeros(img_numpy.shape, np.uint8)
@@ -276,54 +274,34 @@ def prep_display(dets_out, img, path_, out_dir, h, w, undo_transform=True, class
                 cv2.drawContours(out, [cnt], -1, 255, cv2.FILLED)
                 dot_out = cv2.bitwise_and(img_numpy, out)
                 dot_outs = dot_outs+dot_out
-
-                
-        flip_out = cv2.flip(dot_outs,0)
-        sol = np.argwhere(flip_out != 0)
-        popt, pcov = curve_fit(func, sol[:,1], sol[:,0])   
-        #Dot line Curve fitting & Find lateral offset & Curvature
-        sol_x[0] = (-popt[1]+np.sqrt(np.multiply(popt[1],popt[1])-4*popt[0]*popt[2]) )/(2*popt[0])
-        sol_x[1] = (-popt[1]-np.sqrt(np.multiply(popt[1],popt[1])-4*popt[0]*popt[2]) )/(2*popt[0])
         
-        fp=popt[1]
-        fpp = 2*popt[0]
-        sol = np.argmin(abs(sol_x-250))
-        lateral_dist.append(abs(sol_x[sol]-250))
-        #print("lateral_dist : ")
-        #print(lateral_dist)
-        x = sol_x[sol]
-        curve_coeff.append(abs(2*popt[0])/np.power(1+np.multiply(popt[1],popt[1]),3/2))
-        #print("curve_coeff : ")
-        #print(curve_coeff)
-        #print(out_dir + '/' + path2 + 'dot_' + str(i) + '.png') # '/home/davidsos/Documents/yolact_mussel28/' +
+        print(out_dir + '/' + path2 + '_dot_' + str(i) + '.png') # '/home/davidsos/Documents/yolact_mussel28/' +
         cv2.imwrite(out_dir + '/' + path2 + '_dot_' + str(i) + '.png', dot_outs) # works for single image :) # '/home/davidsos/Documents/yolact_mussel28/'
         
-        main_line = np.argmin(lateral_dist)
-        print("lateral_dist : ")
-        print(lateral_dist[main_line])
-        print("curvature: ")
-        print(curve_coeff[main_line])
+        sol_x=np.zeros(2)        
+        flip_out = cv2.flip(dot_outs,0)
+        sol = np.argwhere(flip_out != 0)
 
-
-
-            #out[idx[:,0,0],idx[:0,1]] = 255
-            #img_numpy = cv2.cvtColor(img_numpy, cv2.COLOR_RGB2GRAY)
-            #ret, thresh = cv2.threshold(img_numpy, 127, 255, 0)
-            #inter = cv2.morphologyEx(img_numpy, cv2.MORPH_CLOSE)
-            #cnts, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE) # RETR_TREE
-            #cnt = max(cnts, key=cv2.contourArea)
-            #print(cnt)
-            #out = np.zeros(img_numpy.shape, np.float32) #np.uint8)
-            # image_id = self.bbox_data["image_id"]
-
-            #    cv2.drawContours(out, [cnt], -1, 255, cv2.FILLED)
-            #    out = cv2.bitwise_and(img_numpy, out)
-            #return (out)
-            # img_gpu = torch.from_numpy(out).float().to(device)
-           
-            #    print(out_dir + '/' + path2 + '_mask' + str(i) + '.png') # '/home/davidsos/Documents/yolact_mussel28/' +
-            # cv2.imwrite(out_dir + '/' + path_ + '_mask' + str(i) + '.png', out) # works for single image :) # '/home/davidsos/Documents/yolact_mussel28/'
-            #    cv2.imwrite(out_dir + '/' + path2 + '_boat_' + str(i) + '.png', out) # works for single image :) # '/home/davidsos/Documents/yolact_mussel28/'
+        #if sol is not empty, then do curve fitting
+        if sol.size != 0:
+          popt, pcov = curve_fit(func, sol[:,1], sol[:,0])   
+          #Dot line Curve fitting & Find lateral offset & Curvature
+          sol_x[0] = (-popt[1]+np.sqrt(np.multiply(popt[1],popt[1])-4*popt[0]*popt[2]) )/(2*popt[0])
+          sol_x[1] = (-popt[1]-np.sqrt(np.multiply(popt[1],popt[1])-4*popt[0]*popt[2]) )/(2*popt[0])
+          sol = np.argmin(abs(sol_x-250))
+          lateral_dist.append(abs(sol_x[sol]-250))
+          #print("lateral_dist : ")
+          #print(lateral_dist)
+          x = sol_x[sol]
+          curve_coeff.append(abs(2*popt[0])/np.power(1+np.multiply(popt[1],popt[1]),3/2))
+          #print("curve_coeff : ")
+          #print(curve_coeff)
+        
+          #main_line = np.argmin(lateral_dist)
+          #print("lateral_dist : ")
+          #print(lateral_dist[main_line])
+          #print("curvature: ")
+          #print(curve_coeff[main_line])
 
 
 
